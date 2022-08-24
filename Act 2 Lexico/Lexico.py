@@ -25,10 +25,9 @@ class AnalizadorLexico:
 
     def getToken(self):
         pre = self.preanalisis()
-        token = self.coincidir(pre)
-        self.tokens.append(token)
-
-
+        if pre:
+            token = self.coincidir(pre)
+            self.tokens.append(token)
 
     def preanalisis(self) -> str:
         pre = re.match(r" *[^ ]+", self.text[self.header:])
@@ -140,6 +139,8 @@ class AnalizadorLexico:
             token = "Error"
             simbol = pre
             self.header += len(pre)
+        if token != "Cadena":
+            simbol = simbol.replace(" ","")
         return [simbol, token]
 
 class mainWindow(QMainWindow):
@@ -149,8 +150,8 @@ class mainWindow(QMainWindow):
         self.setWindowTitle("Lexico")
         self.setStyleSheet(Main_SS)
         self.Screen = app.primaryScreen().size()
-        self.setGeometry(self.Screen.width()/8*3, self.Screen.height()/4,
-                         self.Screen.width()/4, self.Screen.height()/4*2)
+        self.setGeometry(self.Screen.width()/8*3, self.Screen.height()/8,
+                         self.Screen.width()/4, self.Screen.height()/8*6)
         self.uiComponents()
         self.show()
 
