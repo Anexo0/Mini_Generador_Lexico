@@ -34,8 +34,8 @@ class AnalizadorLexico:
         pre = re.match(r" *[^ ]+", self.text[self.header:])
         if pre:
             if "\"" in pre[0]:
-                if re.match(r" *\".*\"", pre[0]):
-                    pre = re.match(r" *\".*\"", pre[0])[0]
+                if re.match(r" *\".*\"", self.text[self.header:]):
+                    pre = re.match(r" *\".*\"", self.text[self.header:])
             return pre[0]
         else:
             pre = re.match(r" *", self.text[self.header:])
@@ -46,12 +46,13 @@ class AnalizadorLexico:
         rsw_Tok = ""
         token = ""
         simbol = ""
-        if re.findall(r"[^a-zA-Z\d+.\-*/|!{}()=<>&^;\" ]", pre):
-            self.header += len(pre)
+        if re.findall(r" *[^a-zA-Z\d+\-*/|!{}()=<>&^;,\" ]", pre):
+            simbol = re.match(r" *[^a-zA-Z\d+\-*/|!{}()=<>&^;,\" ]+", pre)[0]
             token = "Error"
-            return token
+            self.header += len(simbol)
+            return [simbol, token]
         for words in self.rs_Words:
-            if words is str:
+            if isinstance(words, str):
                 rsw_Tok = words
                 continue
             else:
@@ -59,6 +60,7 @@ class AnalizadorLexico:
                     if re.fullmatch(r" *" + word, pre):
                         token = rsw_Tok
                         simbol = re.fullmatch(r" *" + word, pre)[0]
+                        self.header += len(simbol)
                         return [simbol, token]
         if re.match(r" *[a-zA-Z][a-zA-Z\d]*", pre):
             simbol = re.match(r" *[a-zA-Z][a-zA-Z\d]*", pre)[0]
@@ -74,8 +76,8 @@ class AnalizadorLexico:
             else:
                 self.header += len(simbol)
                 token = "Real"
-        elif re.fullmatch(r" *\d+", pre):
-            simbol = re.fullmatch(r" *\d+", pre)[0]
+        elif re.match(r" *\d+", pre):
+            simbol = re.match(r" *\d+", pre)[0]
             self.header += len(simbol)
             token = "Entero"
         elif re.match(r" *\".*\"", pre):
@@ -90,28 +92,28 @@ class AnalizadorLexico:
             simbol = re.match(r" *[*/]", pre)[0]
             self.header += len(simbol)
             token = "OpMul"
-        elif re.fullmatch(r" *=", pre):
-            simbol = re.fullmatch(r" *=", pre)[0]
-            self.header += len(simbol)
-            token = "OpAsignacion"
-        elif re.fullmatch(r" *(>)?(<)?(>=)?(<=)?(!=)?(==)?", pre):
-            simbol = re.fullmatch(r" *(>)?(<)?(>=)?(<=)?(!=)?(==)?", pre)[0]
+        elif re.match(r" *(>|<|>=|<=)", pre):
+            simbol = re.match(r" *(>|<|>=|<=)?", pre)[0]
             self.header += len(simbol)
             token = "OpRelac"
-        elif re.fullmatch(r" *(!=)?(==)?", pre):
-            simbol = re.fullmatch(r" *(!=)?(==)?", pre)[0]
+        elif re.match(r" *(!=|==)", pre):
+            simbol = re.match(r" *(!=|==)", pre)[0]
             self.header += len(simbol)
             token = "OpIgualdad"
-        elif re.fullmatch(r" *&&", pre):
-            simbol = re.fullmatch(r" *&&", pre)[0]
+        elif re.match(r" *=", pre):
+            simbol = re.match(r" *=", pre)[0]
+            self.header += len(simbol)
+            token = "OpAsignacion"
+        elif re.match(r" *&&", pre):
+            simbol = re.match(r" *&&", pre)[0]
             self.header += len(simbol)
             token = "OpAnd"
-        elif re.fullmatch(r" *\|\|", pre):
-            simbol = re.fullmatch(r" *\|\|", pre)[0]
+        elif re.match(r" *\|\|", pre):
+            simbol = re.match(r" *\|\|", pre)[0]
             self.header += len(simbol)
             token = "OpOr"
-        elif re.fullmatch(r" *!", pre):
-            simbol = re.fullmatch(r" *!", pre)[0]
+        elif re.match(r" *!", pre):
+            simbol = re.match(r" *!", pre)[0]
             self.header += len(simbol)
             token = "OpNot"
         elif re.match(r" *[()]", pre):
@@ -130,8 +132,8 @@ class AnalizadorLexico:
             simbol = re.match(r" *,", pre)[0]
             self.header += len(simbol)
             token = "Coma"
-        elif re.fullmatch(r" *=", pre):
-            simbol = re.fullmatch(r" *=", pre)[0]
+        elif re.match(r" *=", pre):
+            simbol = re.match(r" *=", pre)[0]
             self.header += len(simbol)
             token = "Igual"
         if not token:
@@ -243,5 +245,3 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     main_Window = mainWindow()
     app.exec()
-
-
