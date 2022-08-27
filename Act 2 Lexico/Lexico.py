@@ -22,7 +22,6 @@ class AnalizadorLexico:
         while self.header < self.t_Len:
             self.getToken()
 
-
     def getToken(self):
         pre = self.preanalisis()
         if pre:
@@ -45,7 +44,7 @@ class AnalizadorLexico:
         rsw_Tok = ""
         token = ""
         simbol = ""
-        if re.findall(r" *[^a-zA-Z\d+\-*/|!{}()=<>&^;,\" ]", pre):
+        if re.match(r" *[^a-zA-Z\d+\-*/|!{}()=<>&^;,\" ]", pre):
             simbol = re.match(r" *[^a-zA-Z\d+\-*/|!{}()=<>&^;,\" ]+", pre)[0]
             token = "Error"
             self.header += len(simbol)
@@ -148,15 +147,15 @@ class mainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Lexico")
-        self.setStyleSheet(Main_SS)
+        self.setStyleSheet(main_SS)
         self.Screen = app.primaryScreen().size()
-        self.setGeometry(self.Screen.width()/8*3, self.Screen.height()/8,
-                         self.Screen.width()/4, self.Screen.height()/8*6)
+        self.setGeometry(self.Screen.width()/16*4, self.Screen.height()/8,
+                         self.Screen.width()/16*8, self.Screen.height()/8*6)
         self.uiComponents()
         self.show()
 
     @Slot()
-    def Entered(self):
+    def entered(self):
         if self.sender() is self.lnEd_In:
             An_L.analize(self.lnEd_In.text())
             x = 0
@@ -181,7 +180,7 @@ class mainWindow(QMainWindow):
         self.lnEd_In = QLineEdit(self)
         self.lnEd_In.setGeometry(self.size().width() / 8, self.size().height() / 8,
                                  self.size().width() / 8 * 6, 30)
-        self.lnEd_In.returnPressed.connect(self.Entered)
+        self.lnEd_In.returnPressed.connect(self.entered)
 
         self.tbl_Res = QTableWidget(self)
         self.tbl_Res.setGeometry(self.size().width() / 8, self.size().height() / 8 * 2,
@@ -197,7 +196,7 @@ class mainWindow(QMainWindow):
 if __name__ == "__main__":
     An_L = AnalizadorLexico()
 
-    Main_SS = "QMainWindow {" \
+    main_SS = "QMainWindow {" \
               "color: #fff;" \
               "font: bold; " \
               "border: 2px solid #555; " \
