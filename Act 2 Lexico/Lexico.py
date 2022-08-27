@@ -11,6 +11,7 @@ class AnalizadorLexico:
     rs_Words = ["Tipo", ["int", "float", "void"],
                 "if", ["if"],
                 "while", ["while"],
+                "else", ["else"],
                 "return", ["return"]
                ]
 
