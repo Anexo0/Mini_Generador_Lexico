@@ -86,7 +86,7 @@ class mainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Sintactico")
+        self.setWindowTitle("Mini Sintactico")
         self.setStyleSheet(Main_SS)
         self.Screen = app.primaryScreen().size()
         self.setGeometry(self.Screen.width()/16, self.Screen.height()/8,
