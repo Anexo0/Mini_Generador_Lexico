@@ -65,7 +65,7 @@ class analizador_Sintactico():
                         res.append([''.join(self.pila), ''.join(reversed(self.entrada)), f"d{step}"])
                     elif 'r' in step:
                         rule = rules[int(step[1:])]
-                        if rule == "End":
+                        if rule[0] == "End":
                             self.pila.pop()
                             res.append([''.join(self.pila), ''.join(reversed(self.entrada)), "r0 accepted"])
                             break
