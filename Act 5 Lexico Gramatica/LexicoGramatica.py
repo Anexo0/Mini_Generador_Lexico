@@ -1,3 +1,4 @@
+import csv
 import sys
 import re
 from PySide6.QtGui import *
@@ -6,124 +7,137 @@ from PySide6.QtWidgets import *
 
 class AnalizadorLexico:
     def __init__(self):
-        self.text = str
-        self.header = int
-        self.tokens = list
-        self.rs_Words = [
-            "Tipo", ["int", "float", "void"],
-            "if", ["if"],
-            "while", ["while"],
-            "else", ["else"],
-            "return", ["return"]
-        ]
-        self.re_Patts = [
-            "Id", ["[a-zA-Z][a-zA-Z\d]*"],
-            "Entero", ["\d+"],
-            "Cadena", ["\".*\""],
-            "OpSuma", ["[+\-]"],
-            "OpMul", ["[*/]"],
-            "OpRelac", ["(>|<|>=|<=)"],
-            "OpIgualdad", ["(!=|==)"],
-            "OpAsignacion", ["="],
-            "OpAnd", ["&&"],
-            "OpOr", ["\|\|"],
-            "OpNot", ["!"],
-            "(", ["("],
-            ")", [")"],
-            "{", ["{"],
-            "}", ["}"],
-            ";", [";"],
-            ",", [","],
-            "=", ["="],
-            "", [""],
-            "", [""],
-            "", [""],
+        self.Text = str
+        self.Header = int
+        self.Tokens = list
+        self.ResolveTokens()
 
-        ]
+    def ResolveTokens(self):
+        Re = []
+        with open("Gramatica/Tokens.csv", "r") as TFile:
+            CsvT = csv.reader(TFile)
+            for Line in CsvT:
+                Re.append(Line)
+        Rw = []
+        with open("Gramatica/RsWords.csv", "r") as RFile:
+            CsvR = csv.reader(RFile)
+            for Line in CsvR:
+                L = [Line[0], Line[1][1:-1].replace("'","").split(",")]
+                Rw.append(L)
+        self.RePatts = Re
+        self.RsWords = Rw
 
-    def analize(self, text):
-        self.text = text
-        self.header = 0
-        self.tokens = []
-        self.t_Len = len(self.text)
-        while self.header < self.t_Len:
-            self.getToken()
 
-    def getToken(self):
-        pre = self.preanalisis()
-        if pre:
-            token = self.coincidir(pre)
-            self.tokens.append(token)
 
-    def preanalisis(self) -> str:
-        pre = re.match(r" *[^ ]+", self.text[self.header:])
-        if pre:
-            if "\"" in pre[0]:
-                if re.match(r" *\".*\"", self.text[self.header:]):
-                    pre = re.match(r" *\".*\"", self.text[self.header:])
-            return pre[0]
+    def Analize(self, text):
+        self.Text = text
+        self.Header = 0
+        self.Tokens = []
+        self.t_Len = len(self.Text)
+        while self.Header < self.t_Len:
+            self.GetToken()
+        return self.Tokens
+
+    def GetToken(self):
+        Pre = self.Preanalisis()
+        if Pre:
+            Token = self.Coincidir(Pre)
+            self.Tokens.append(Token)
+
+    def Preanalisis(self) -> str:
+        Pre = re.match(r" *[^ ]+", self.Text[self.Header:])
+        if Pre:
+            if "\"" in Pre[0]:
+                if re.match(r" *\".*\"", self.Text[self.Header:]):
+                    Pre = re.match(r" *\".*\"", self.Text[self.Header:])
+            return Pre[0]
         else:
-            pre = re.match(r" *", self.text[self.header:])
-            self.header += len(pre[0])
+            Pre = re.match(r" *", self.Text[self.Header:])
+            self.Header += len(Pre[0])
             return ""
 
-    def coincidir(self, pre) -> list:
-        rsw_Tok = ""
-        token = ""
-        simbol = ""
+    def Coincidir(self, pre) -> list:
+        Token = ""
+        Simbol = ""
         if re.match(r" *[^a-zA-Z\d+\-*/|!{}()=<>&^;,\" ]", pre):
-            simbol = re.match(r" *[^a-zA-Z\d+\-*/|!{}()=<>&^;,\" ]+", pre)[0]
-            token = "Error"
-            self.header += len(simbol)
-            return [simbol, token]
-        for words in self.rs_Words:
-            if isinstance(words, str):
-                rsw_Tok = words
-                continue
-            else:
-                for word in words:
-                    if re.fullmatch(r" *" + word, pre):
-                        token = rsw_Tok
-                        simbol = re.fullmatch(r" *" + word, pre)[0]
-                        self.header += len(simbol)
-                        return [simbol, token]
-        for word in self.re_Patts:
-            if isinstance(word, str):
-                rsw_Tok = word
-                continue
-            else:
-                for re_patt in word:
-                    if re.fullmatch(r" *" + re_patt, pre):
-                        token = rsw_Tok
-                        simbol = re.fullmatch(r" *" + re_patt, pre)[0]
-                        self.header += len(simbol)
-                        return [simbol, token]
-        if re.match(r" *\d+\.\d+", pre):
-            simbol = re.match(r" *\d+\.\d+", pre)[0]
-            if simbol.count(".") > 1:
-                token = "Error"
-                self.header += len(pre)
-            elif len(simbol) == pre.rfind(".") + 1:
-                token = "Error"
-            else:
-                self.header += len(simbol)
-                token = "Real"
+            Simbol = re.match(r" *[^a-zA-Z\d+\-*/|!{}()=<>&^;,\" ]+", pre)[0]
+            Token = "Error"
+            self.Header += len(Simbol)
+        if not Token:
+            for Word in self.RsWords:
+                for ReWords in Word[1]:
+                    if re.fullmatch(r" *" + ReWords, pre):
+                        Token = Word[0]
+                        Simbol = re.fullmatch(r" *" + ReWords, pre)[0]
+                        self.Header += len(Simbol)
+                        break
+        if not Token:
+            for Word in self.RePatts:
+                if re.match(r" *" + Word[1], pre):
+                    Token = Word[0]
+                    Simbol = re.match(r" *" + Word[1], pre)[0]
+                    self.Header += len(Simbol)
+                    break
+        if not Token:
+            Token = "Error"
+            Simbol = pre
+            self.Header += len(pre)
+        if Token != "Cadena":
+            Simbol = Simbol.replace(" ","")
+        return [Simbol, Token]
 
-        if not token:
-            token = "Error"
-            simbol = pre
-            self.header += len(pre)
-        if token != "Cadena":
-            simbol = simbol.replace(" ","")
-        return [simbol, token]
-
-class mainWindow(QMainWindow):
+class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Lexico")
+        main_SS = "QMainWindow {" \
+                  "color: #fff;" \
+                  "font: bold; " \
+                  "border: 2px solid #555; " \
+                  "border-radius: 3px; " \
+                  "border-style: outset; " \
+                  "background: qradialgradient(" \
+                  "cx: 0.5, cy: 0.0, fx: 0.5, fy: 0.5, radius: 1, stop: 0 #76A5AF, stop: 0.5 #45818E);" \
+                  "padding: 1px;" \
+                  "}" \
+                  "QPushButton {" \
+                  "color: #fff;" \
+                  "font: bold; " \
+                  "border: 2px solid #555; " \
+                  "border-radius: 3px; " \
+                  "border-style: outset; " \
+                  "background: qradialgradient(" \
+                  "cx: 0.5, cy: -0.5, fx: 0.5, fy: -0.4, radius: 1.50, stop: 0 #fff, stop: 1 #000);" \
+                  "padding: 1px;" \
+                  "}" \
+                  "QLineEdit {" \
+                  "color: #000;" \
+                  "font: bold; " \
+                  "border: 2px solid #555; " \
+                  "border-radius: 10px; " \
+                  "border-style: outset; " \
+                  "background: #FFF;" \
+                  "padding: 1px;" \
+                  "}" \
+                  "QTableWidget {" \
+                  "color: #fff;" \
+                  "background-color: #76A5AF;" \
+                  "padding: 1px;" \
+                  "}" \
+                  "QLabel {" \
+                  "color: #fff;" \
+                  "font: 15pt verdana bold; " \
+                  "}" \
+                  "QCheckBox {" \
+                  "color: #fff;" \
+                  "font: bold;" \
+                  "}" \
+                  "QMessageBox {" \
+                  "background-color: #76A5AF;" \
+                  "}"
         self.setStyleSheet(main_SS)
-        self.Screen = app.primaryScreen().size()
+        self.Screen = App.primaryScreen().size()
         self.setGeometry(self.Screen.width()/16*4, self.Screen.height()/8,
                          self.Screen.width()/16*8, self.Screen.height()/8*6)
         self.uiComponents()
@@ -132,10 +146,10 @@ class mainWindow(QMainWindow):
     @Slot()
     def entered(self):
         if self.sender() is self.lnEd_In:
-            An_L.analize(self.lnEd_In.text())
+            An_L.Analize(self.lnEd_In.text())
             x = 0
-            self.tbl_Res.setRowCount(len(An_L.tokens))
-            for a in An_L.tokens:
+            self.tbl_Res.setRowCount(len(An_L.Tokens))
+            for a in An_L.Tokens:
                 item = QTableWidgetItem()
                 item.setText(a[0])
                 item.setToolTip(a[0])
@@ -170,53 +184,6 @@ class mainWindow(QMainWindow):
 
 if __name__ == "__main__":
     An_L = AnalizadorLexico()
-
-    main_SS = "QMainWindow {" \
-              "color: #fff;" \
-              "font: bold; " \
-              "border: 2px solid #555; " \
-              "border-radius: 3px; " \
-              "border-style: outset; " \
-              "background: qradialgradient(" \
-              "cx: 0.5, cy: 0.0, fx: 0.5, fy: 0.5, radius: 1, stop: 0 #76A5AF, stop: 0.5 #45818E);" \
-              "padding: 1px;" \
-              "}" \
-              "QPushButton {" \
-              "color: #fff;" \
-              "font: bold; " \
-              "border: 2px solid #555; " \
-              "border-radius: 3px; " \
-              "border-style: outset; " \
-              "background: qradialgradient(" \
-              "cx: 0.5, cy: -0.5, fx: 0.5, fy: -0.4, radius: 1.50, stop: 0 #fff, stop: 1 #000);" \
-              "padding: 1px;" \
-              "}" \
-              "QLineEdit {" \
-              "color: #000;" \
-              "font: bold; " \
-              "border: 2px solid #555; " \
-              "border-radius: 10px; " \
-              "border-style: outset; " \
-              "background: #FFF;" \
-              "padding: 1px;" \
-              "}" \
-              "QTableWidget {" \
-              "color: #fff;" \
-              "background-color: #76A5AF;" \
-              "padding: 1px;" \
-              "}" \
-              "QLabel {" \
-              "color: #fff;" \
-              "font: 15pt verdana bold; " \
-              "}" \
-              "QCheckBox {" \
-              "color: #fff;" \
-              "font: bold;" \
-              "}" \
-              "QMessageBox {" \
-              "background-color: #76A5AF;" \
-              "}"
-
-    app = QApplication(sys.argv)
-    main_Window = mainWindow()
-    app.exec()
+    App = QApplication(sys.argv)
+    main_Window = MainWindow()
+    App.exec()
