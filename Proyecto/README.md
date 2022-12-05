@@ -60,9 +60,11 @@ Primero con el token actual y posición del header actual determinara si existe 
 
 
 >**Desplazamiento**
+>
 Al detectarse un desplazamiento se mete a la pila el token actual y continua con el siguiente, ademas de mover el header a la posición que indique el desplazamiento 
 
 >**Reducción**
+>
 Al detectarse una reducción se obtiene la regla correspondiente a la reducción y se analiza si la reducción se puede realizar con los tokens que están en la pila de ser asi estos se sacan de la pila para poder realizar la reducción y en su lugar se deja el producto de la reducción, en el caso de no poder realizarse la reducción se retorna indicando que hubo un error.
 Al terminar la reducción se regresa el header a la posición del ultimo dentro de la pila previo a ingresar el producto de la 
 reducción
