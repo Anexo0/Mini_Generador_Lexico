@@ -1,4 +1,4 @@
-import LexicoGramatica as Alx
+import AnalizadorLexico as Alx
 import AnalizadorSemantico as Asm
 import AnalizadorSintactico as Asn
 
