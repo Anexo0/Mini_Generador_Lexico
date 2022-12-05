@@ -72,6 +72,8 @@ Al terminar con el análisis se retorna los datos a mostrar para la interfaz gr�
 
 Con el ultimo nodo generado se obtiene los nodos finales que serán utilizados para la generación del árbol sintáctico este con una función que esta implementado en dentro del objeto No Terminal
 
+---
+
 ## Analizador Semántico
 
 >[AnalizadorSemantico.py]()
@@ -82,6 +84,8 @@ El analizador semántico que se utiliza en este proyecto esta en su respectivo a
 El Semántico, con los nodos retornado por el analizador sintáctico pasara por ellos en la manera que se recorre el árbol sintáctico para identificar definiciones como de variables o funciones, ademas identificara sus datos como el tipo de objeto, token, símbolo y ámbito dentro del código
 
 Esto lo hace de manera recursiva hasta que haya analizado todos los nodos
+
+---
 
 ## Interfaz Gráfica
 
