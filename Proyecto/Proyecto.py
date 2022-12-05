@@ -15,7 +15,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Sintactico Objetos")
+        self.setWindowTitle("Proyecto")
         Main_SS = "QMainWindow {" \
                   "color: #fff;" \
                   "font: bold; " \
