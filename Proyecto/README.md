@@ -1,4 +1,4 @@
-#Proyecto
+# Proyecto
 ---
 ##Analizador Léxico
 > [AnalizadorLexico.py](https://github.com/Anexo0/Sem_Traductores_De_Lenguajes_ll/blob/main/Proyecto/AnalizadorLexico.py)
